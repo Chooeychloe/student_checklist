@@ -1,9 +1,10 @@
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { AppContext } from "../../Context/AppContext";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
-export default function CreateSubject() {
-  const { token } = useContext(AppContext);
+export default function Update() {
+  const { id } = useParams();
+  const { token, user } = useContext(AppContext);
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
@@ -20,10 +21,37 @@ export default function CreateSubject() {
 
   const [errors, setErrors] = useState({});
 
-  async function handleCreate(e) {
+  async function getSubjects() {
+    const res = await fetch(`/api/subjects/${id}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    const data = await res.json();
+    console.log(data);
+
+    if (res.ok) {
+      if (data.subject.user_id !== user.id) {
+        navigate("/");
+      }
+      setFormData({
+        subject_name: data.subject.subject_name,
+        subject_code: data.subject.subject_code,
+        credit_lecture: data.subject.credit_lecture,
+        credit_lab: data.subject.credit_lab,
+        prerequisite: data.subject.prerequisite,
+        semester: data.subject.semester,
+        academic_year: data.subject.academic_year,
+        final_grade: data.subject.final_grade,
+        instructor: data.subject.instructor,
+      });
+    }
+  }
+
+  async function handleUpdate(e) {
     e.preventDefault();
-    const res = await fetch("/api/subjects", {
-      method: "post",
+    const res = await fetch(`/api/subjects/${id}`, {
+      method: "put",
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -34,16 +62,18 @@ export default function CreateSubject() {
       setErrors(data.errors);
     } else {
       navigate("/home");
-      console.log(data);
     }
-    console.log(data);
   }
+
+  useEffect(() => {
+    getSubjects();
+  }, []);
   return (
     <>
-      <h1 className="title">Create a new subject</h1>
+      <h1 className="title">Update subject</h1>
 
       <form
-        onSubmit={handleCreate}
+        onSubmit={handleUpdate}
         action=""
         className="w-1/2 mx-auto space-y-6"
       >
@@ -144,7 +174,7 @@ export default function CreateSubject() {
           />
         </div>
         <div>
-          <button className="primary-btn">Create</button>
+          <button className="primary-btn">Update</button>
         </div>
       </form>
     </>

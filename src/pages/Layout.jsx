@@ -32,14 +32,15 @@ export default function Layout() {
     <>
       <header>
         <nav>
-          <Link to="/" className="nav-link">
+          {/* {user ?): (<Link to="/" className="nav-link">
+            Home
+          </Link>)} */}
+          <Link to="/home" className="nav-link">
             Home
           </Link>
           {user ? (
             <div className="flex items-center space-x-4">
-              <p className="text-slate-400 text-s">
-                Welcome back, {user.name}
-              </p>
+              <p className="text-slate-400 text-s">Welcome back, {user.name}</p>
               <Link to="/create" className="nav-link">
                 New Subject
               </Link>
